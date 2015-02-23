@@ -1,6 +1,9 @@
 FROM tutum/lamp
 MAINTAINER Mark Wienk <mark.wienk@core9.io>
 
+ADD run_cron.sh /run_cron.sh
+ADD supervisord-cron.conf /etc/supervisor/conf.d/supervisord-cron.conf
+
 # Install packages
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update && \
@@ -18,4 +21,6 @@ RUN apt-get update && \
 			-e 's#^;session.save_path.*#session.save_path = "/var/www/sessions"#' /etc/php5/apache2/php.ini && \
 	sed -ri -e "s/^mysqladmin.*/mysql -uroot -e 'CREATE DATABASE db_opens'/" /create_mysql_admin_user.sh && \
 	sed -ri -e "s/DirectoryIndex.*/DirectoryIndex index.php index.html index.cgi index.pl index.xhtml index.htm/" /etc/apache2/mods-available/dir.conf && \
-    echo "mysqladmin -uroot shutdown" >> /create_mysql_admin_user.sh
+    echo "mysqladmin -uroot shutdown" >> /create_mysql_admin_user.sh && \
+    chmod +x /run_cron.sh && \
+    ln -s /usr/bin/php /usr/bin/php-cli
